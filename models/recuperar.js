@@ -1,40 +1,43 @@
 import { supabase } from "../config/supabase.js";
 
-//crear codigo de recuperacion
-export const crearCodigoRecuperacion = async (usuarioId, codigo ) => {
-    const expirestAt = new Date(Date.now() + 15 * 60 * 1000);  //expira en 15 minutos
+// Crear código de recuperación
+export const crearCodigoRecuperacion = async (usuarioId, codigo) => {
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
 
-    const { data, error } = await supabase
-    .from('recovery_codes')
-    .insert({
-        usuario_id: usuarioId,
-        codigo: codigo,
-        expires_at: expirestAt.toISOString()
-    })
+  const { data, error } = await supabase
+    .from('códigos_de_recuperación') 
+    .insert([
+      {
+        usuario_id: usuarioId,   // Coincide con tu columna usuario_id
+        código: codigo,          // Coincide con tu columna código (con tilde)
+        expira_en: expiresAt.toISOString() // Coincide con tu columna expira_en
+      }
+    ])
     .select();
 
-    return {data, error};
+  return { data, error };
 };
 
-//obtener codigo no utilizado por usuario
+// Obtener código válido no utilizado por usuario
 export const obtenerCodigoValido = async (usuarioId, codigo) => {
-    const {data, error} = await supabase.from('recovery_codes')
+  const { data, error } = await supabase
+    .from('códigos_de_recuperación')
     .select('*')
     .eq('usuario_id', usuarioId)
-    .eq('codigo', codigo)
+    .eq('código', codigo)
     .eq('usado', false)
-    .gt('expires_at', new Date().toISOString())
+    .gt('expira_en', new Date().toISOString())
     .single();
 
-    return {daata, error};
-
+  return { data, error };
 };
-//marcar codigo como usado
-export const marcarComoUsado= async (codigoId) => {
-    const {data, error} = await supabase
-    .from('recovery_codes')
-    .update({usado: true})
-    .eq('id', codigoId);
 
-    return {data, error};
+// Marcar código como usado
+export const marcarComoUsado = async (codigoId) => {
+  const { data, error } = await supabase
+    .from('códigos_de_recuperación')
+    .update({ usado: true })
+    .eq('identificacion', codigoId); // Revisa si tu clave primaria es 'identificacion' o 'id'
+
+  return { data, error };
 };

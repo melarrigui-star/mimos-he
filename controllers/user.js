@@ -1,41 +1,45 @@
-// controllers/user.js
-import { getUsers, obtenerUsuarioPorId } from '../models/user.js';
+import { obtenerTodosUsuarios, obteid, actualizarusuario as actualizarusuarioModelo, eliminar } from '../models/user.js';
 
-// Obtener todos los usuarios
-export const getUsersController = async (req, res) => {
+export const obteneruser = async (req, res) => {
     try {
-        const { data, error } = await getUsers();
-        
-        if (error) {
-            console.error('Error al obtener usuarios:', error);
-            return res.status(500).json({ error: 'Error al obtener los usuarios' });
-        }
-
-        return res.json({ usuarios: data });
+        const { data, error } = await obtenerTodosUsuarios();
+        if (error) return res.status(500).json({ error: 'Error al obtener usuarios' });
+        return res.json(data);
     } catch (error) {
-        console.error('Error al obtener los usuarios:', error);
-        return res.status(500).json({ error: 'Error interno del servidor' });
+        return res.status(500).json({ error: 'Error interno' });
     }
 };
 
-// Obtener usuario por ID
-export const getUsuarioPorId = async (req, res) => {
+export const buscarusuarioid = async (req, res) => {
     try {
-        const { id } = req.params; // ← Error corregido: era res.params
-
-        if (!id) {
-            return res.status(400).json({ error: 'ID es requerido' });
-        }
-
-        const { data, error } = await obtenerUsuarioPorId(id);
-
-        if (error || !data) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
-
-        return res.json({ usuario: data });
+        const { id } = req.params;
+        const { data, error } = await obteid(id);
+        if (error || !data) return res.status(404).json({ error: 'Usuario no encontrado' });
+        return res.json(data);
     } catch (error) {
-        console.error('Error al obtener usuario por ID:', error);
-        return res.status(500).json({ error: 'Error interno del servidor' });
+        return res.status(500).json({ error: 'Error interno' });
+    }
+};
+
+export const actualizarusuario = async (req, res) => { 
+    try {
+        const { id } = req.params;
+        // Aquí llamamos a la función del modelo con su nuevo nombre interno
+        const { data, error } = await actualizarusuarioModelo(id, req.body);
+        if (error) return res.status(500).json({ error: 'Error al actualizar en la base de datos' });
+        return res.json({ message: 'Usuario actualizado con éxito', data });
+    } catch (error) {
+        return res.status(500).json({ error: 'Error interno' });
+    }
+};
+
+export const eliminarusuario = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { error } = await eliminar(id);
+        if (error) return res.status(500).json({ error: 'Error al eliminar' });
+        return res.json({ message: 'Usuario eliminado con éxito' });
+    } catch (error) {
+        return res.status(500).json({ error: 'Error interno' });
     }
 };

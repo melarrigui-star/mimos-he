@@ -93,17 +93,13 @@ export const forgotPassword = async (req, res)=>{
   }
 };
 
-      //encriptamos la nv contraseña
-      const hashedPassword= await  bcrypt.hash(newpasswords,10);
+     // ... encriptamos la nv contraseña
+const hashedPassword = await bcrypt.hash(newPasswords, 10);
 
-      //actualizamos la contraseña del usuario en la base de datos
+// ... actualizamos la contraseña del usuario en la base de datos
+const { error: updateerror } = await actualizarusuario(usuario.id, { contrasena: hashedPassword });
 
-      const {error:updateerror}= await actualizarusuario(
-        usuario.id,(password:hashedPassword)}
-      )
-
-      if(updateerror) throw updateerror;
-
+if (updateerror) throw updateerror;
 
       //marcamos el codigo como usado
       await marcarComoUsado(codigorecord.id);

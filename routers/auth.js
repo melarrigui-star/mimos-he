@@ -1,16 +1,16 @@
-// routers/auth.js
 import express from 'express';
 import { registro, login } from '../controllers/auth.js';
-import { forgoPassword } from '../controllers/recuperar.js';
+import { recuperar, forgotPassword, verifycode } from '../controllers/recuperar.js'; // <-- Agregamos 'recuperar' aquí
 
 const router = express.Router();
 
-//rutas de autenticacion
 router.post('/registro', registro);
 router.post('/login', login);
 
-//ruta de olvido de contraseñas
-router.post('/forgo-password', forgoPassword);
-router.post('verify-code', verifycode);
+// Agrega esta nueva línea para poder solicitar el código:
+router.post('/recuperar', recuperar); 
+
+router.post('/forgo-password', forgotPassword);
+router.post('/verify-code', verifycode);
 
 export default router;
